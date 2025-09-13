@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import CBCReportUploadCard from './CBCReportUploadCard';
-import { BarChart3, PieChart, LineChart, ArrowUpRight } from 'lucide-react';
+import { BarChart3, PieChart, LineChart, ArrowUpRight, Upload, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as RechartsLineChart, Line } from 'recharts';
+import { useState } from 'react';
 
 // Sample data for charts
-
 const dailyData = [
   { name: 'Mon', value: 4000 },
   { name: 'Tue', value: 3000 },
@@ -17,9 +17,94 @@ const dailyData = [
 ];
 
 const AnalyticsPage = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [prediction, setPrediction] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const handleExploreAnalysis = () => {
-    const el = document.getElementById('cbc-analysis');
+    const el = document.getElementById('analysis-section');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create image preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImageAndResults = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
+    setPrediction(null);
+    // Reset file input
+    const fileInput = document.getElementById('fracture-file-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const handleFractureAnalysis = async () => {
+    if (!selectedFile) return;
+
+    setIsLoading(true);
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageData = e.target?.result as string;
+        
+        const response = await fetch('http://localhost:5000/api/fracture/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageData: imageData,
+            filename: selectedFile.name
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setPrediction(result.prediction);
+        } else {
+          const errorData = await response.json();
+          console.error('Prediction failed:', errorData.message);
+          alert(errorData.message || 'Failed to analyze X-ray image');
+        }
+        setIsLoading(false);
+      };
+      
+      reader.onerror = () => {
+        console.error('Error reading file');
+        alert('Error reading image file');
+        setIsLoading(false);
+      };
+      
+      reader.readAsDataURL(selectedFile);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to connect to analysis server');
+      setIsLoading(false);
+    }
+  };
+
+  const getRiskColor = (riskLevel: string) => {
+    switch (riskLevel) {
+      case 'Low': return 'text-green-600 bg-green-100';
+      case 'Medium': return 'text-yellow-600 bg-yellow-100';
+      case 'High': return 'text-orange-600 bg-orange-100';
+      case 'Critical': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
   };
 
   return (
@@ -41,7 +126,7 @@ const AnalyticsPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                Health Data Analytics & Visualization
+                AI-Powered Medical Analytics
               </motion.h1>
               <motion.p 
                 className="text-lg text-gray-600 dark:text-gray-300 mb-8"
@@ -49,7 +134,7 @@ const AnalyticsPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                Transform healthcare data into actionable insights with our powerful analytics platform, designed specifically for healthcare providers.
+                Advanced CBC analysis and bone fracture detection using cutting-edge AI technology for accurate medical diagnostics.
               </motion.p>
               <motion.div 
                 className="flex flex-wrap gap-4"
@@ -105,8 +190,165 @@ const AnalyticsPage = () => {
         </div>
       </section>
 
+      {/* AI Analysis Features */}
+      <section id="analysis-section" className="py-16 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center max-w-3xl mx-auto mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              AI-Powered Medical Analysis
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Upload medical reports and X-ray images for instant AI-powered analysis
+            </p>
+          </motion.div>
+
+          {/* Side-by-side Analysis Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            {/* CBC Analysis Card */}
+            <motion.div 
+              className="glass-card p-6"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mr-3">
+                  <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">CBC Report Analysis</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Upload your Complete Blood Count report for AI-powered analysis and insights.
+              </p>
+              <CBCReportUploadCard />
+            </motion.div>
+
+            {/* Bone Fracture Detection Card */}
+            <motion.div 
+              className="glass-card p-6"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-center mb-4">
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mr-3">
+                  <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Bone Fracture Detection</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Upload X-ray images for AI-powered fracture detection and risk assessment.
+              </p>
+              
+              {/* File Upload Area */}
+              <div className="space-y-4">
+                {imagePreview ? (
+                  <div className="relative">
+                    <img 
+                      src={imagePreview} 
+                      alt="Uploaded X-ray" 
+                      className="w-full h-64 object-cover rounded-lg border-2 border-gray-200 dark:border-gray-700"
+                    />
+                    <button 
+                      onClick={clearImageAndResults}
+                      className="absolute top-3 right-3 bg-gray-800 bg-opacity-70 hover:bg-opacity-90 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200"
+                      title="Remove image"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 text-center">
+                      {selectedFile?.name}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="fracture-file-input"
+                    />
+                    <label htmlFor="fracture-file-input" className="cursor-pointer">
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Click to upload X-ray image
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+                    </label>
+                  </div>
+                )}
+                <button
+                  onClick={handleFractureAnalysis}
+                  disabled={!selectedFile || isLoading}
+                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                >
+                  {isLoading ? 'Analyzing...' : 'Analyze X-ray'}
+                </button>
+
+                {/* Prediction Results */}
+                {prediction && (
+                  <motion.div 
+                    className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Analysis Results</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Prediction</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{prediction.class}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Confidence</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {(prediction.confidence * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Risk Level</p>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(prediction.riskLevel)}`}>
+                        {prediction.riskLevel}
+                      </span>
+                    </div>
+
+                    {prediction.recommendations && (
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Recommendations</p>
+                        <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                          {prediction.recommendations.slice(0, 3).map((rec: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-purple-600 mr-2">•</span>
+                              {rec}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
-      <section className="py-16 bg-white dark:bg-gray-900">
+      <section className="py-16 bg-gray-50 dark:bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center max-w-3xl mx-auto mb-16"
@@ -122,13 +364,6 @@ const AnalyticsPage = () => {
               Turn your healthcare data into actionable insights
             </p>
           </motion.div>
-
-          <div className="flex justify-center mb-12">
-            <div id="cbc-analysis" className="glass-card p-6 w-full max-w-2xl">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">CBC Report Analysis</h3>
-              <CBCReportUploadCard />
-            </div>
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -178,7 +413,7 @@ const AnalyticsPage = () => {
       </section>
 
       {/* Dashboard Preview */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-950">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center max-w-3xl mx-auto mb-16"
