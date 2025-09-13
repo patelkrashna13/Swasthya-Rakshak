@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const CallToAction = () => {
+  const { t } = useTranslation();
+  
   return (
     <section className="py-16 md:py-24 bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-800 dark:to-secondary-800 relative overflow-hidden">
       {/* Background decoration */}
@@ -23,7 +26,7 @@ const CallToAction = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Ready to Transform Your Healthcare Services?
+            {t('home.readyToTransform')}
           </motion.h2>
           
           <motion.p 
@@ -33,7 +36,7 @@ const CallToAction = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Join thousands of healthcare providers who are improving patient outcomes and operational efficiency with स्वास्थ्य रक्षक's innovative platform.
+            {t('home.transformDescription')}
           </motion.p>
           
           <motion.div 
@@ -47,7 +50,7 @@ const CallToAction = () => {
               to="/"
               className="btn-accent flex items-center justify-center"
             >
-              Schedule a Demo
+              {t('home.scheduleDemo')}
               <ArrowRight size={16} className="ml-2" />
             </Link>
             
@@ -55,7 +58,7 @@ const CallToAction = () => {
               to="/"
               className="bg-white text-primary-700 hover:bg-primary-50 py-2 px-4 rounded-md transition-colors duration-300 shadow-md hover:shadow-lg"
             >
-              Contact Sales
+              {t('home.contactSales')}
             </Link>
           </motion.div>
         </div>

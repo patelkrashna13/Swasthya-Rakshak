@@ -1,15 +1,13 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { translations } from '../../translations';
+import { legacyTranslations } from '../../translations';
 import HeartAnimation from '../common/HeartAnimation';
 
 const HeroSection = () => {
-  const { theme } = useTheme();
   const { language } = useLanguage();
-  const t = translations[language].hero;
+  const t = legacyTranslations[language].hero;
 
   const containerVariants = {
     hidden: { opacity: 0 },

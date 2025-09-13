@@ -1,38 +1,41 @@
 import { motion } from 'framer-motion';
 import CountUp from '../common/CountUp';
-
-const stats = [
-  { 
-    value: 5000, 
-    suffix: '+', 
-    title: 'Healthcare Providers', 
-    description: 'Doctors and facilities using our platform',
-    color: 'text-primary-600 dark:text-primary-400' 
-  },
-  { 
-    value: 1.2, 
-    suffix: 'M+', 
-    title: 'Patient Consultations', 
-    description: 'Monthly telemedicine appointments',
-    color: 'text-secondary-600 dark:text-secondary-400' 
-  },
-  { 
-    value: 98, 
-    suffix: '%', 
-    title: 'Satisfaction Rate', 
-    description: 'From both patients and providers',
-    color: 'text-accent-600 dark:text-accent-400' 
-  },
-  { 
-    value: 30, 
-    suffix: '%', 
-    title: 'Efficiency Improved', 
-    description: 'In hospital resource management',
-    color: 'text-success-600 dark:text-success-400' 
-  },
-];
+import { useTranslation } from '../../hooks/useTranslation';
 
 const StatsSection = () => {
+  const { t } = useTranslation();
+
+  const stats = [
+    { 
+      value: 5000, 
+      suffix: '+', 
+      title: t('home.stats.providers.title'), 
+      description: t('home.stats.providers.description'),
+      color: 'text-primary-600 dark:text-primary-400' 
+    },
+    { 
+      value: 1.2, 
+      suffix: 'M+', 
+      title: t('home.stats.consultations.title'), 
+      description: t('home.stats.consultations.description'),
+      color: 'text-secondary-600 dark:text-secondary-400' 
+    },
+    { 
+      value: 98, 
+      suffix: '%', 
+      title: t('home.stats.satisfaction.title'), 
+      description: t('home.stats.satisfaction.description'),
+      color: 'text-accent-600 dark:text-accent-400' 
+    },
+    { 
+      value: 30, 
+      suffix: '%', 
+      title: t('home.stats.efficiency.title'), 
+      description: t('home.stats.efficiency.description'),
+      color: 'text-success-600 dark:text-success-400' 
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-white dark:bg-gray-900 relative overflow-hidden">
       {/* Background decoration */}
@@ -50,10 +53,10 @@ const StatsSection = () => {
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Making a Real Impact
+            {t('home.makingImpact')}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Our platform is transforming healthcare delivery across India with measurable results
+            {t('home.impactDescription')}
           </p>
         </motion.div>
 

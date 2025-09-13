@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const modalVariants = {
   hidden: { opacity: 0, scale: 0.9, y: 40 },
@@ -21,6 +22,7 @@ interface PatientModalProps {
 }
 
 export default function PatientModal({ open, onClose, onSubmit }: PatientModalProps) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<PatientForm>({
     patientName: '',
     age: '',
@@ -59,10 +61,10 @@ export default function PatientModal({ open, onClose, onSubmit }: PatientModalPr
             }}
           >
             <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
-            <h2 className="text-lg font-bold mb-2 text-center text-primary-700 dark:text-primary-300">Add New Patient</h2>
+            <h2 className="text-lg font-bold mb-2 text-center text-primary-700 dark:text-primary-300">{t('patient.addPatient')}</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-1.5">
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Patient Name</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">{t('patient.patientName')}</label>
                 <input 
                   type="text" 
                   name="patientName" 
@@ -73,7 +75,7 @@ export default function PatientModal({ open, onClose, onSubmit }: PatientModalPr
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Age</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">{t('patient.dateOfBirth')}</label>
                 <input 
                   type="number" 
                   name="age" 
@@ -85,7 +87,7 @@ export default function PatientModal({ open, onClose, onSubmit }: PatientModalPr
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Gender</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">{t('patient.gender')}</label>
                 <select 
                   name="gender" 
                   value={form.gender} 
@@ -93,15 +95,14 @@ export default function PatientModal({ open, onClose, onSubmit }: PatientModalPr
                   required 
                   className="w-full px-2 py-1 text-sm rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent h-8"
                 >
-                  <option value="">Select</option>
-                  <option value="M">Male</option>
-                  <option value="F">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
+                  <option value="">{t('common.select')}</option>
+                  <option value="M">{t('patient.male')}</option>
+                  <option value="F">{t('patient.female')}</option>
+                  <option value="Other">{t('patient.other')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Contact</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">{t('patient.phone')}</label>
                 <input 
                   type="text" 
                   name="contact" 
@@ -117,7 +118,7 @@ export default function PatientModal({ open, onClose, onSubmit }: PatientModalPr
                   disabled={submitting} 
                   className="w-full py-1.5 text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 h-8"
                 >
-                  {submitting ? 'Adding...' : 'Add Patient'}
+                  {submitting ? t('common.loading') : t('patient.addPatient')}
                 </button>
               </div>
             </form>

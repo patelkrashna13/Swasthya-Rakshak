@@ -60,6 +60,47 @@ const AnalyticsPage = () => {
                 <button onClick={handleExploreAnalysis} className="btn-accent">Explore Analysis</button>
               </motion.div>
             </div>
+            <div className="lg:w-1/2">
+              <motion.div 
+                className="glass-card p-6"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsLineChart
+                      data={dailyData}
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="name" stroke="#6B7280" />
+                      <YAxis stroke="#6B7280" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+                          borderColor: '#E5E7EB',
+                          borderRadius: '0.375rem'
+                        }} 
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke="#0EA5E9" 
+                        strokeWidth={2} 
+                        dot={{ r: 4 }} 
+                        activeDot={{ r: 6 }} 
+                      />
+                    </RechartsLineChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>

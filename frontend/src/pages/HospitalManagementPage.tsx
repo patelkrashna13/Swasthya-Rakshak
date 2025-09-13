@@ -9,8 +9,10 @@ import WardBedModal, { WardForm, BedForm, PatientAssignmentForm } from '../compo
 import InventoryModal, { InventoryItemForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm, InventoryTransactionForm } from '../components/common/InventoryModal';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../hooks/useTranslation';
 
 const HospitalManagementPage = () => {
+  const { t } = useTranslation();
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [patientModalOpen, setPatientModalOpen] = useState(false);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
@@ -538,7 +540,7 @@ const HospitalManagementPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                Smart Hospital Management System
+                {t('hospitalManagement.title')}
               </motion.h1>
               <motion.p
                 className="text-lg text-gray-600 dark:text-gray-300 mb-8"
@@ -546,7 +548,7 @@ const HospitalManagementPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                Streamline operations, optimize resource allocation, and improve patient care with our comprehensive hospital management solution.
+                {t('hospitalManagement.subtitle')}
               </motion.p>
               <motion.div
                 className="flex flex-wrap gap-4"
@@ -554,9 +556,9 @@ const HospitalManagementPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <button className="btn-secondary">Schedule Demo</button>
+                <button className="btn-secondary">{t('hospitalManagement.scheduleDemo')}</button>
                 <button className="bg-transparent border border-secondary-600 dark:border-secondary-400 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-secondary-900/30 py-2 px-4 rounded-md transition-colors duration-300">
-                  View Pricing
+                  {t('hospitalManagement.viewPricing')}
                 </button>
               </motion.div>
             </div>
@@ -584,10 +586,10 @@ const HospitalManagementPage = () => {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Comprehensive Hospital Management Modules
+              {t('hospitalManagement.comprehensiveModules')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              Integrated solutions to streamline every aspect of hospital operations
+              {t('hospitalManagement.modulesDescription')}
             </p>
           </motion.div>
 
@@ -638,20 +640,20 @@ const HospitalManagementPage = () => {
               transition={{ duration: 0.5 }}
             >
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                Transform Your Hospital Operations
+                {t('hospitalManagement.transformOperations')}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                Our smart hospital management system delivers measurable improvements in efficiency, patient care, and financial performance.
+                {t('hospitalManagement.transformDescription')}
               </p>
 
               <div className="space-y-4">
-                {[
-                  "30% reduction in administrative workload",
-                  "25% improvement in bed utilization",
-                  "40% faster patient admission and discharge",
-                  "Reduced medication errors by up to 80%",
-                  "Improved staff scheduling efficiency by 35%"
-                ].map((benefit, index) => (
+                {Object.values({
+                  workload: t('hospitalManagement.benefits.workload'),
+                  bedUtilization: t('hospitalManagement.benefits.bedUtilization'),
+                  admissionSpeed: t('hospitalManagement.benefits.admissionSpeed'),
+                  medicationErrors: t('hospitalManagement.benefits.medicationErrors'),
+                  staffScheduling: t('hospitalManagement.benefits.staffScheduling')
+                }).map((benefit: string, index: number) => (
                   <motion.div
                     key={index}
                     className="flex items-start"
@@ -870,37 +872,6 @@ const HospitalManagementPage = () => {
         </section>
       )}
 
-      {wards.length > 0 && (
-        <section className="py-8">
-          <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Wards</h3>
-          <div className="overflow-x-auto">
-            <motion.table initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2">Ward Name</th>
-                  <th className="px-4 py-2">Type</th>
-                  <th className="px-4 py-2">Capacity</th>
-                  <th className="px-4 py-2">Occupancy</th>
-                  <th className="px-4 py-2">Location</th>
-                  <th className="px-4 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {wards.map((w, idx) => (
-                  <motion.tr key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }} className="hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
-                    <td className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">{w.WardName}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{w.Type}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{w.Capacity}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{w.CurrentOccupancy}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{w.Location}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{w.Status}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </motion.table>
-          </div>
-        </section>
-      )}
 
       {beds.length > 0 && (
         <section className="py-8">
@@ -961,30 +932,113 @@ const HospitalManagementPage = () => {
       {inventoryItems.length > 0 && (
         <section className="py-8">
           <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Inventory Items</h3>
+          <div className="overflow-x-auto">
+            <motion.table initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Item Name</th>
+                  <th className="px-4 py-2">Quantity</th>
+                  <th className="px-4 py-2">Unit Price</th>
+                  <th className="px-4 py-2">Total Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventoryItems.map((ii, idx) => (
+                  <motion.tr key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }} className="hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
+                    <td className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">{ii.itemName}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{ii.quantity}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{ii.unitPrice}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{ii.totalPrice}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
         </section>
       )}
 
-      {suppliers.length > 0 && (
-        <section className="py-8">
-          <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Suppliers</h3>
-        </section>
-      )}
 
       {purchaseOrders.length > 0 && (
         <section className="py-8">
           <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Purchase Orders</h3>
+          <div className="overflow-x-auto">
+            <motion.table initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Order ID</th>
+                  <th className="px-4 py-2">Supplier ID</th>
+                  <th className="px-4 py-2">Order Date</th>
+                  <th className="px-4 py-2">Total Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {purchaseOrders.map((po, idx) => (
+                  <motion.tr key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }} className="hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
+                    <td className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">{po.orderID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{po.supplierID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{po.orderDate}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{po.totalPrice}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
         </section>
       )}
 
       {purchaseOrderItems.length > 0 && (
         <section className="py-8">
           <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Purchase Order Items</h3>
+          <div className="overflow-x-auto">
+            <motion.table initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Order ID</th>
+                  <th className="px-4 py-2">Item ID</th>
+                  <th className="px-4 py-2">Quantity</th>
+                  <th className="px-4 py-2">Unit Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {purchaseOrderItems.map((poi, idx) => (
+                  <motion.tr key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }} className="hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
+                    <td className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">{poi.orderID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{poi.itemID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{poi.quantity}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{poi.unitPrice}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
         </section>
       )}
 
       {inventoryTransactions.length > 0 && (
         <section className="py-8">
           <h3 className="text-2xl font-bold text-center text-secondary-700 dark:text-secondary-300 mb-6">Recent Inventory Transactions</h3>
+          <div className="overflow-x-auto">
+            <motion.table initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Transaction ID</th>
+                  <th className="px-4 py-2">Item ID</th>
+                  <th className="px-4 py-2">Quantity</th>
+                  <th className="px-4 py-2">Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventoryTransactions.map((it, idx) => (
+                  <motion.tr key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.05 }} className="hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
+                    <td className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200">{it.transactionID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{it.itemID}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{it.quantity}</td>
+                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{it.type}</td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
         </section>
       )}
 

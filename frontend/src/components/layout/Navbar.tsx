@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Heart, Sun, Moon, Languages } from 'lucide-react';
+import { Menu, X, Heart, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,18 +12,21 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const navLinks = [
-    { name: language === 'en' ? 'Home' : 'होम', path: '/' },
-    { name: language === 'en' ? 'Telemedicine' : 'टेलीमेडिसिन', path: '/telemedicine' },
-    { name: language === 'en' ? 'Hospital Management' : 'अस्पताल प्रबंधन', path: '/hospital-management' },
-    { name: language === 'en' ? 'Analytics' : 'एनालिटिक्स', path: '/analytics' },
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.telemedicine'), path: '/telemedicine' },
+    { name: t('nav.analytics'), path: '/analytics' },
+    { name: t('nav.hospitalManagement'), path: '/hospital-management' },
   ];
 
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      const scrollY = window.scrollY;
+      
+      if (scrollY > 20) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -33,18 +37,21 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
   return (
     <header 
-      className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md py-2 shadow-md' 
-          : 'bg-transparent py-4'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
+        theme === 'dark' 
+          ? 'bg-black/50 text-white' 
+          : 'bg-orange-50/50 text-gray-900'
       }`}
+      style={{
+        paddingTop: scrolled ? '0.5rem' : '1rem',
+        paddingBottom: scrolled ? '0.5rem' : '1rem'
+      }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
@@ -57,7 +64,9 @@ const Navbar = () => {
               size={28} 
               fill={theme === 'dark' ? 'rgba(14, 165, 233, 0.2)' : 'rgba(14, 165, 233, 0.1)'} 
             />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">
+            <span className={`text-xl font-bold ${
+              theme === 'dark' ? 'text-white' : 'text-gray-800'
+            }`}>
               {language === 'en' ? 'स्वास्थ्य रक्षक' : 'स्वास्थ्य रक्षक'}
             </span>
           </Link>
@@ -70,8 +79,10 @@ const Navbar = () => {
                     to={link.path}
                     className={`text-sm font-medium transition-colors duration-200 relative group ${
                       location.pathname === link.path
-                        ? 'text-primary-600 dark:text-primary-400'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                        ? 'text-primary-600'
+                        : theme === 'dark'
+                          ? 'text-gray-300 hover:text-white'
+                          : 'text-gray-700 hover:text-gray-900'
                     }`}
                   >
                     {link.name}
@@ -89,15 +100,23 @@ const Navbar = () => {
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="px-3 py-1 rounded-md bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-medium hover:bg-primary-100 dark:hover:bg-primary-800/30 transition-colors"
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                theme === 'dark'
+                  ? 'bg-gray-800 text-white hover:bg-gray-700'
+                  : 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+              }`}
             >
-              {language === 'en' ? 'हिंदी' : 'English'}
+              {t('nav.language')}
             </button>
 
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-200 mr-2"
+              className={`p-2 rounded-full transition-colors duration-200 mr-2 ${
+                theme === 'dark'
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-orange-100'
+              }`}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -116,7 +135,11 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-200"
+              className={`md:hidden p-2 rounded-full transition-colors duration-200 ${
+                theme === 'dark'
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-orange-100'
+              }`}
               aria-label="Toggle menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -141,8 +164,12 @@ const Navbar = () => {
                         to={link.path}
                         className={`px-4 py-2 rounded-md transition-colors duration-200 ${
                           location.pathname === link.path
-                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            ? theme === 'dark'
+                              ? 'bg-gray-800 text-primary-400'
+                              : 'bg-orange-200 text-primary-600'
+                            : theme === 'dark'
+                              ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                              : 'text-gray-700 hover:text-gray-900 hover:bg-orange-100'
                         }`}
                       >
                         {link.name}

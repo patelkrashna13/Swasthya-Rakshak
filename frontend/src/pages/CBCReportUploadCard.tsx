@@ -3,6 +3,7 @@ import Tesseract from 'tesseract.js';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useTranslation } from '../hooks/useTranslation';
 
 const REFERENCE_RANGES = {
   Haemoglobin: { min: 13, max: 17, unit: 'g/dL', flag: 'Low → Anemia risk' },
@@ -184,6 +185,7 @@ function getPredictedSymptoms(key: CBCKey, value: number): string {
 }
 
 const CBCReportUploadCard = () => {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [ocrText, setOcrText] = useState('');
   const [extracted, setExtracted] = useState<any>(null);
@@ -422,7 +424,7 @@ const CBCReportUploadCard = () => {
             onClick={() => fileInputRef.current?.click()}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>
-            {loading ? 'Uploading...' : 'Upload CBC Report'}
+            {loading ? t('common.loading') : t('reports.uploadReport')}
           </button>
           <input
             type="file"
@@ -451,19 +453,19 @@ const CBCReportUploadCard = () => {
           </div>
         </div>
       )}
-      {loading && <div>Processing OCR...</div>}
+      {loading && <div>{t('common.loading')}</div>}
       {extracted && (
         <div className="mt-4" id="cbc-print-area" ref={reportRef}>
-          <h4 className="font-bold mb-2">Extracted CBC Values</h4>
+          <h4 className="font-bold mb-2">{t('reports.cbcReport')}</h4>
           <div ref={mainRef}>
           <table className="min-w-full border text-xs print-table">
             <thead>
               <tr>
-                <th className="border px-2 py-2 leading-relaxed">Test</th>
-                <th className="border px-2 py-2 leading-relaxed">Value</th>
-                <th className="border px-2 py-2 leading-relaxed">Unit</th>
-                <th className="border px-2 py-2 leading-relaxed">Normal Range</th>
-                <th className="border px-2 py-2 leading-relaxed">Status</th>
+                <th className="border px-2 py-2 leading-relaxed">{t('reports.reportType')}</th>
+                <th className="border px-2 py-2 leading-relaxed">{t('reports.result')}</th>
+                <th className="border px-2 py-2 leading-relaxed">{t('inventory.unit')}</th>
+                <th className="border px-2 py-2 leading-relaxed">{t('reports.normalRange')}</th>
+                <th className="border px-2 py-2 leading-relaxed">{t('appointment.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -484,7 +486,7 @@ const CBCReportUploadCard = () => {
                       {extracted[key] !== undefined && (
                         <span className="font-semibold status-text">
                           {extracted[key] < REFERENCE_RANGES[key].min
-                            ? 'Low'
+                            ? t('ward.lowStock')
                             : extracted[key] > REFERENCE_RANGES[key].max
                             ? 'High'
                             : 'Normal'}
@@ -498,7 +500,7 @@ const CBCReportUploadCard = () => {
           </table>
           <div className="mt-6">
             <div className="w-full print-chart">
-              <h4 className="font-bold mb-2">CBC Bar Chart</h4>
+              <h4 className="font-bold mb-2">{t('reports.cbcReport')} {t('analytics.overview')}</h4>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={Object.keys(extracted).map(key => ({ name: key, value: extracted[key] }))} margin={{ left: 12, right: 24, top: 10, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -516,7 +518,7 @@ const CBCReportUploadCard = () => {
 
         {/* Precautions, Diet, and Predicted Symptoms (single entry) */}
         <div className="mt-8" ref={guidanceRef}>
-          <h4 className="font-bold mb-2 text-lg">Personalized Health Guidance</h4>
+          <h4 className="font-bold mb-2 text-lg">{t('reports.recommendations')}</h4>
           {(() => {
             const abnormalKeys = (Object.keys(REFERENCE_RANGES) as CBCKey[]).filter(k => {
               const v = extracted[k];
@@ -525,7 +527,7 @@ const CBCReportUploadCard = () => {
             if (abnormalKeys.length === 0) {
               return (
                 <div className="bg-yellow-100 text-yellow-900 rounded p-4 text-center font-semibold">
-                  Upload the valid CBC Patient Report !
+                  {t('reports.uploadReport')}
                 </div>
               );
             }
@@ -541,7 +543,7 @@ const CBCReportUploadCard = () => {
                     <div className="flex items-start gap-3 p-3">
                       <span className="flex-none mt-0.5">⚠️</span>
                       <div>
-                        <div className="font-semibold mb-2 text-gray-900 dark:text-white">Precaution &amp; Diet</div>
+                        <div className="font-semibold mb-2 text-gray-900 dark:text-white">{t('reports.recommendations')}</div>
                         <ul className="pdf-ul text-sm leading-6 break-words whitespace-normal list-disc pl-5 space-y-1 text-gray-900 dark:text-white">
                           {toBullets(precaution).slice(0, 3).map((b, idx) => (<li key={idx}>{b}</li>))}
                         </ul>
@@ -550,7 +552,7 @@ const CBCReportUploadCard = () => {
                     <div className="flex items-start gap-3 p-3">
                       <span className="flex-none mt-0.5">🩺</span>
                       <div>
-                        <div className="font-semibold mb-2 text-gray-900 dark:text-white">Predicted Symptoms / Disease</div>
+                        <div className="font-semibold mb-2 text-gray-900 dark:text-white">{t('reports.findings')}</div>
                         <ul className="pdf-ul text-sm italic leading-6 break-words whitespace-normal list-disc pl-5 space-y-1 text-gray-900 dark:text-white">
                           {toBullets(symptoms).slice(0, 3).map((b, idx) => (<li key={idx}>{b}</li>))}
                         </ul>
@@ -564,16 +566,18 @@ const CBCReportUploadCard = () => {
           </div>
         </div>
       )}
-      <div className="mt-4 flex justify-end no-print">
-        <button
-          type="button"
-          onClick={handleDownloadPdf}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded border border-green-600 text-green-700 hover:bg-green-700/10 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 14a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/><path d="M7 10a1 1 0 001.707.707L9 10.414V4a1 1 0 112 0v6.414l.293-.293A1 1 0 1112.707 11.707l-3 3a1 1 0 01-1.414 0l-3-3A1 1 0 017 10z"/></svg>
-          Download Report (PDF)
-        </button>
-      </div>
+      {file && extracted && (
+        <div className="mt-4 flex justify-end no-print">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-green-600 text-green-700 hover:bg-green-700/10 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 14a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/><path d="M7 10a1 1 0 001.707.707L9 10.414V4a1 1 0 112 0v6.414l.293-.293A1 1 0 1112.707 11.707l-3 3a1 1 0 01-1.414 0l-3-3A1 1 0 017 10z"/></svg>
+            {t('common.download')} {t('reports.cbcReport')} (PDF)
+          </button>
+        </div>
+      )}
     </div>
   );
 };

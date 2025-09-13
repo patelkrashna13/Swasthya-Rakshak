@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, addDays, isToday } from 'date-fns';
 import { Calendar, Clock } from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const GENDERS = ['M', 'F', 'Prefer not to say'];
@@ -58,6 +59,7 @@ export default function AppointmentModal({
   onClose, 
   onSubmit 
 }: AppointmentModalProps) {
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
@@ -203,7 +205,7 @@ export default function AppointmentModal({
             </button>
             
             <h2 className="text-2xl font-bold mb-6 text-center text-primary-700 dark:text-primary-300">
-              Book Appointment
+              {t('appointment.addAppointment')}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -211,11 +213,11 @@ export default function AppointmentModal({
                 {/* Left Column - Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-2">
-                    Personal Information
+                    {t('patient.patientDetails')}
                   </h3>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Full Name</label>
+                    <label className="block text-sm font-medium mb-1">{t('patient.patientName')}</label>
                     <input 
                       type="text" 
                       name="patientName" 
@@ -228,7 +230,7 @@ export default function AppointmentModal({
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Age</label>
+                      <label className="block text-sm font-medium mb-1">{t('patient.dateOfBirth')}</label>
                       <input 
                         type="number" 
                         name="age" 
@@ -241,7 +243,7 @@ export default function AppointmentModal({
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Gender</label>
+                      <label className="block text-sm font-medium mb-1">{t('patient.gender')}</label>
                       <select 
                         name="gender" 
                         value={formData.gender} 
@@ -249,10 +251,10 @@ export default function AppointmentModal({
                         required 
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-400"
                       >
-                        <option value="">Select</option>
+                        <option value="">{t('common.select')}</option>
                         {GENDERS.map(g => (
                           <option key={g} value={g}>
-                            {g === 'M' ? 'Male' : g === 'F' ? 'Female' : 'Prefer not to say'}
+                            {g === 'M' ? t('patient.male') : g === 'F' ? t('patient.female') : t('patient.other')}
                           </option>
                         ))}
                       </select>
@@ -260,7 +262,7 @@ export default function AppointmentModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Mobile Number</label>
+                    <label className="block text-sm font-medium mb-1">{t('patient.phone')}</label>
                     <input 
                       type="tel" 
                       name="mobileNo" 
@@ -275,7 +277,7 @@ export default function AppointmentModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Email Address</label>
+                    <label className="block text-sm font-medium mb-1">{t('patient.email')}</label>
                     <input 
                       type="email" 
                       name="patientEmail" 
@@ -288,7 +290,7 @@ export default function AppointmentModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Blood Group</label>
+                    <label className="block text-sm font-medium mb-1">{t('patient.bloodGroup')}</label>
                     <select 
                       name="bloodGroup" 
                       value={formData.bloodGroup} 
@@ -296,7 +298,7 @@ export default function AppointmentModal({
                       required 
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-400"
                     >
-                      <option value="">Select</option>
+                      <option value="">{t('common.select')}</option>
                       {BLOOD_GROUPS.map(bg => (
                         <option key={bg} value={bg}>{bg}</option>
                       ))}
@@ -307,11 +309,11 @@ export default function AppointmentModal({
                 {/* Right Column - Medical Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-2">
-                    Medical Information
+                    {t('patient.medicalHistory')}
                   </h3>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Type of Consultation</label>
+                    <label className="block text-sm font-medium mb-1">{t('appointment.type')}</label>
                     <select 
                       name="typeOfDisease" 
                       value={formData.typeOfDisease} 
@@ -319,7 +321,7 @@ export default function AppointmentModal({
                       required 
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-400"
                     >
-                      <option value="">Select consultation type</option>
+                      <option value="">{t('common.select')}</option>
                       {DISEASE_TYPES.map(d => (
                         <option key={d} value={d}>{d}</option>
                       ))}
@@ -327,7 +329,7 @@ export default function AppointmentModal({
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Reason for Visit</label>
+                    <label className="block text-sm font-medium mb-1">{t('appointment.reason')}</label>
                     <textarea 
                       name="reason" 
                       value={formData.reason} 
@@ -343,7 +345,7 @@ export default function AppointmentModal({
               {/* Date and Time Selection */}
               <div className="mt-8">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b pb-2">
-                  Select Date & Time
+                  {t('appointment.date')} & {t('appointment.time')}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -352,7 +354,7 @@ export default function AppointmentModal({
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-gray-300">
                         <Calendar className="inline-block w-5 h-5 mr-2" />
-                        Select Date
+                        {t('appointment.date')}
                       </h4>
                       {formData.date && (
                         <span className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded-full">
@@ -399,7 +401,7 @@ export default function AppointmentModal({
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-medium text-gray-700 dark:text-gray-300">
                         <Clock className="inline-block w-5 h-5 mr-2" />
-                        Available Time Slots
+                        {t('appointment.time')}
                       </h4>
                       {formData.time ? (
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -412,7 +414,7 @@ export default function AppointmentModal({
                     
                     {!formData.date ? (
                       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                        Please select a date to see available time slots
+                        {t('appointment.date')}
                       </div>
                     ) : isLoadingSlots ? (
                       <div className="flex justify-center py-8">
@@ -420,7 +422,7 @@ export default function AppointmentModal({
                       </div>
                     ) : availableSlots.length === 0 ? (
                       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                        No available slots for this date. Please select another date.
+                        {t('appointment.date')}
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -469,7 +471,7 @@ export default function AppointmentModal({
                   onClick={onClose} 
                   className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button 
                   type="submit" 
@@ -480,7 +482,7 @@ export default function AppointmentModal({
                       : 'bg-primary-600 hover:bg-primary-700'
                   }`}
                 >
-                  {submitting ? 'Scheduling...' : 'Schedule Appointment'}
+                  {submitting ? t('common.loading') : t('appointment.addAppointment')}
                 </button>
               </div>
             </form>

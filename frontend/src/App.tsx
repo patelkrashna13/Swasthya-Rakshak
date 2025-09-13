@@ -10,6 +10,7 @@ import TelemedicinePage from './pages/TelemedicinePage';
 import HospitalManagementPage from './pages/HospitalManagementPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import DoctorPanel from './pages/DoctorPanel';
+import DoctorAppointments from './components/DoctorAppointments';
 import Preloader from './components/common/Preloader';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/telemedicine" element={<TelemedicinePage />} />
                 <Route path="/hospital-management" element={<HospitalManagementPage />} />
                 <Route path="/doctor-panel" element={<DoctorPanel />} />
+                <Route path="/doctor-appointments" element={<DoctorAppointments />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
               </Routes>
             </main>
