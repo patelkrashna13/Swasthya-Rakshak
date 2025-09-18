@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import CBCReportUploadCard from './CBCReportUploadCard';
-import { BarChart3, PieChart, LineChart, ArrowUpRight, Upload, Brain } from 'lucide-react';
+import { BarChart3, PieChart, LineChart, ArrowUpRight, Upload, Brain, Loader2, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as RechartsLineChart, Line } from 'recharts';
 import { useState } from 'react';
@@ -21,6 +21,8 @@ const AnalyticsPage = () => {
   const [prediction, setPrediction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingStage, setLoadingStage] = useState('');
 
   const handleExploreAnalysis = () => {
     const el = document.getElementById('analysis-section');
@@ -51,17 +53,57 @@ const AnalyticsPage = () => {
     }
   };
 
+  const simulateLoadingProgress = () => {
+    const stages = [
+      { stage: 'Preprocessing image...', duration: 800 },
+      { stage: 'Analyzing bone structure...', duration: 1000 },
+      { stage: 'Detecting fractures...', duration: 700 },
+      { stage: 'Generating report...', duration: 500 }
+    ];
+
+    let currentProgress = 0;
+    let stageIndex = 0;
+
+    const updateProgress = () => {
+      if (stageIndex < stages.length) {
+        setLoadingStage(stages[stageIndex].stage);
+        const stageProgress = 100 / stages.length;
+        const targetProgress = (stageIndex + 1) * stageProgress;
+        
+        const progressInterval = setInterval(() => {
+          currentProgress += 2;
+          setLoadingProgress(Math.min(currentProgress, targetProgress));
+          
+          if (currentProgress >= targetProgress) {
+            clearInterval(progressInterval);
+            stageIndex++;
+            setTimeout(updateProgress, 100);
+          }
+        }, stages[stageIndex].duration / 50);
+      }
+    };
+
+    updateProgress();
+  };
+
   const handleFractureAnalysis = async () => {
     if (!selectedFile) return;
 
     setIsLoading(true);
+    setLoadingProgress(0);
+    setPrediction(null);
+    
+    // Start loading animation
+    simulateLoadingProgress();
+
     try {
       // Convert file to base64
       const reader = new FileReader();
       reader.onload = async (e) => {
         const imageData = e.target?.result as string;
         
-        const response = await fetch('http://localhost:5000/api/fracture/predict', {
+        // Add minimum 3-second delay for loading experience
+        const analysisPromise = fetch('http://localhost:5000/api/fracture/predict', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -72,15 +114,26 @@ const AnalyticsPage = () => {
           }),
         });
 
+        const delayPromise = new Promise(resolve => setTimeout(resolve, 3000));
+        
+        const [response] = await Promise.all([analysisPromise, delayPromise]);
+
         if (response.ok) {
           const result = await response.json();
-          setPrediction(result.prediction);
+          setLoadingProgress(100);
+          setLoadingStage('Analysis complete!');
+          
+          // Small delay to show completion
+          setTimeout(() => {
+            setPrediction(result.prediction);
+            setIsLoading(false);
+          }, 500);
         } else {
           const errorData = await response.json();
           console.error('Prediction failed:', errorData.message);
           alert(errorData.message || 'Failed to analyze X-ray image');
+          setIsLoading(false);
         }
-        setIsLoading(false);
       };
       
       reader.onerror = () => {
@@ -288,16 +341,104 @@ const AnalyticsPage = () => {
                     </label>
                   </div>
                 )}
+
+                {/* Enhanced Analyze Button with Loading */}
                 <button
                   onClick={handleFractureAnalysis}
                   disabled={!selectedFile || isLoading}
-                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg transition-all duration-200 font-medium relative overflow-hidden"
                 >
-                  {isLoading ? 'Analyzing...' : 'Analyze X-ray'}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Analyzing X-ray...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <Brain className="h-5 w-5" />
+                      <span>Analyze X-ray</span>
+                    </div>
+                  )}
                 </button>
 
+                {/* Loading Progress Indicator */}
+                {isLoading && (
+                  <motion.div 
+                    className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {loadingStage}
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {Math.round(loadingProgress)}%
+                      </span>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-3">
+                      <motion.div 
+                        className="bg-purple-600 h-2 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${loadingProgress}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                    
+                    {/* Medical Analysis Animation */}
+                    <div className="flex items-center justify-center space-x-4 text-purple-600">
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          delay: 0
+                        }}
+                      >
+                        <Activity className="h-4 w-4" />
+                      </motion.div>
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          delay: 0.3
+                        }}
+                      >
+                        <Brain className="h-4 w-4" />
+                      </motion.div>
+                      <motion.div
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          delay: 0.6
+                        }}
+                      >
+                        <Activity className="h-4 w-4" />
+                      </motion.div>
+                    </div>
+                    
+                    <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+                      AI is analyzing your X-ray image for fractures and abnormalities
+                    </p>
+                  </motion.div>
+                )}
+
                 {/* Prediction Results */}
-                {prediction && (
+                {prediction && !isLoading && (
                   <motion.div 
                     className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
                     initial={{ opacity: 0, y: 20 }}
